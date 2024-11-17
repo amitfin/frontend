@@ -33,6 +33,7 @@ import { createSearchParam } from "../common/url/search-params";
 export const MODES = ["single", "restart", "queued", "parallel"] as const;
 export const MODES_MAX = ["queued", "parallel"] as const;
 export const isMaxMode = arrayLiteralIncludes(MODES_MAX);
+export const RAW_SUFFIX_MARKER = '\uE000';
 
 export const baseActionStruct = object({
   alias: optional(string()),
@@ -445,6 +446,20 @@ export const migrateAutomationAction = (
       action.action = action.service;
     }
     delete action.service;
+
+    const data_entries = Object.entries(action.data || {});
+    if (data_entries.length > 0) {
+      action.data = Object.fromEntries(data_entries.filter(
+        ([_, value]) => !(typeof value === 'string' && value.endsWith(RAW_SUFFIX_MARKER))
+      ));
+
+      const data_raw = data_entries
+        .filter(([_, value]) => typeof value === 'string' && value.endsWith(RAW_SUFFIX_MARKER))
+        .map(([key, value]) => [key, value.slice(0, -RAW_SUFFIX_MARKER.length)]);
+      if (data_raw.length > 0) {
+        action.data_raw = Object.fromEntries(data_raw);
+      }
+    } 
   }
 
   if ("sequence" in action) {

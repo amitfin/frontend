@@ -419,7 +419,9 @@ export interface TargetSelector {
 
 export interface TemplateSelector {
   // eslint-disable-next-line @typescript-eslint/ban-types
-  template: {} | null;
+  template: {
+    raw?: boolean;
+  } | null;
 }
 
 export interface ThemeSelector {

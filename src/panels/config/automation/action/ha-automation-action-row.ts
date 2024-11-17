@@ -564,7 +564,7 @@ export default class HaAutomationActionRow extends LitElement {
     ev.stopPropagation();
     const value = {
       ...(this.action.alias ? { alias: this.action.alias } : {}),
-      ...ev.detail.value,
+      ...migrateAutomationAction(ev.detail.value),
     };
     fireEvent(this, "value-changed", { value });
   }

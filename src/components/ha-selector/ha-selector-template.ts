@@ -1,6 +1,8 @@
 import { css, html, nothing, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators";
 import { fireEvent } from "../../common/dom/fire_event";
+import { RAW_SUFFIX_MARKER } from "../../data/script";
+import type { TemplateSelector } from "../../data/selector";
 import type { HomeAssistant } from "../../types";
 import { documentationUrl } from "../../util/documentation-url";
 import "../ha-code-editor";
@@ -18,6 +20,8 @@ export class HaTemplateSelector extends LitElement {
   @property() public label?: string;
 
   @property() public helper?: string;
+
+  @property({ attribute: false }) public selector!: TemplateSelector;
 
   @property({ type: Boolean }) public disabled = false;
 
@@ -69,11 +73,14 @@ export class HaTemplateSelector extends LitElement {
   }
 
   private _handleChange(ev) {
-    const value = ev.target.value;
+    let value = ev.target.value;
     if (this.value === value) {
       return;
     }
     this.warn = WARNING_STRINGS.find((str) => value.includes(str));
+    if (this.selector.template?.raw) {
+      value += RAW_SUFFIX_MARKER;
+    }
     fireEvent(this, "value-changed", { value });
   }
 
